@@ -3,6 +3,16 @@ Merge Android and iOS js交互库(JsBridge和WebViewJavascriptBridge)
 
 > 应项目需求统一Android和iOS WebView交互框架
 
+## 更新
+
+- 注解转换
+  - 注解中的value直接转换成model
+  - 注解中无value的时候使用方法中的参数
+    - 进行model转换
+    - string直接放回
+
+
+
 ## Javascript
 - 统一加载js文件
 
@@ -19,7 +29,7 @@ window.WebViewJavascriptBridge.send(data, function(responseData) {
             });
 
 //register
-bridge.registerHandler('注册Js方法Native调用', function(data, responseCallback) {
+window.WebViewJavascriptBridge.registerHandler('注册Js方法Native调用', function(data, responseCallback) {
         log('ObjC called testJavascriptHandler with', data)
         var responseData = { 'Javascript Says':'Right back atcha!' }
         log('JS responding with', responseData)
@@ -74,10 +84,16 @@ BridgeHandlerManager.getInstance().registerHandler(this, webView);
 并在this==>如Activity中写注解方法
 ```Java
 //处理模式默认为handlerMode=REGISTER;
-//注册submitFromWeb给js调用
-@JavascriptInterface
-public void submitFromWeb() {
-    Log.d("test", "===================================submitFromWeb");
+//自定将js传的json数据转换成model,其中如果转换失败了,可以取getData()是原始的string 数据.
+@JavascriptInterface()
+	public void submitFromWeb(SubmitModel model) {
+		Log.d("test", "===================================submitFromWeb" + model.getData());
+}
+
+//方法多参数注解形式(注解中的值都是json 字符串中的key)
+@JavascriptInterface({"user","pwd"})
+	public void submitFromWeb11(String u, String p) {
+		Log.d("test", "===================================submitFromWeb" + ",u=" + u + ",p=" + p);
 }
 ```
 
@@ -95,7 +111,7 @@ public void hello() {
 
 ## iOS
 
-- 地址:WebViewJavascriptBridge](https://github.com/xieyangxuejun/WebViewJavascriptBridge)
+- 地址:[WebViewJavascriptBridge](https://github.com/xieyangxuejun/WebViewJavascriptBridge)
 
 
 - 其中主要的方法是
